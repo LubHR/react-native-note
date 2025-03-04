@@ -34,6 +34,7 @@ const AddNote = ({
 					 </View>
 				 </View>
 			 </View>
+
 		 </Modal>
 	);
 };
