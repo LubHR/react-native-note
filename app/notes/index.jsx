@@ -1,8 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import {Text, View, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Alert} from 'react-native';
+import {
+	Text,
+	View,
+	StyleSheet,
+	FlatList,
+	TouchableOpacity,
+	Modal,
+	TextInput,
+	Alert,
+	ActivityIndicator
+} from 'react-native';
 import NoteList from '@/component/NoteList';
 import AddNote from '@/component/AddNoteModale';
 import noteService from '@/services/noteService';
+import {database} from "../../services/appwite";
 
 
 const NoteScreen = () => {
@@ -40,14 +51,56 @@ const NoteScreen = () => {
 		}else {
 			setNotes([...notes,response.data])
 		}
-
 		setNewNote('')
 		setModelVisibil(false)
+	}
+	///Edit Note
+	const editNote = async (id, newText) =>{
+		if(!newText.trim()){
+			Alert.alert('Error','Note text cannot be empty');
+			return;
+		}
+		const response = await noteService.updateNote(id,newText);
+		if(response.error){
+			Alert.alert('Error', response.error)
+		}else{
+			setNotes((prevNote)=>prevNote.map((note) => note.$id === id ?
+				 {...notes,text:response.data.text} :note))
+		}
+	}
+
+	///Delete Note
+	const deleteNote = async (id) =>{
+		Alert.alert('Delete Note', 'Are you sure want to delete this note?',
+			 [
+				 {
+					 text:'Cancel',
+					 style:'cancel'
+				 },
+				 {
+					 text:'Delete',
+					 style:'destructive',
+					 onPress:async () =>{
+							const response = await noteService.deleteNote(id);
+							if(response.error){
+								Alert.alert("Error",response.error)
+							}else{
+								setNotes((prevNotes) => prevNotes.filter((note) => note.$id !== id));
+							}
+					 }
+				 }
+			 ])
 	}
 
 	return (
 		 <View style={style.Note}>
-			 <NoteList notes={notes}/>
+			 {loading ?(
+					<ActivityIndicator size={'large'} color={'blue'}/>
+			 ):(<>
+				  {error && <Text style={style.errorText}>{error}</Text>}
+				  <NoteList notes={notes} onDelete={deleteNote} onEdit={editNote}/>
+			 </>)
+			 }
 			 <TouchableOpacity style={style.addButton} onPress={() => setModelVisibil(true)}>
 				 <Text style={style.addButtonText}>+ Add Note</Text>
 			 </TouchableOpacity>
@@ -83,6 +136,12 @@ const style = StyleSheet.create({
 		color: '#fff',
 		fontSize: 18,
 		fontWeight: 'bold',
+	},
+	errorText:{
+		color:'red',
+		textAlign:'center',
+		marginBottom:10,
+		fontSize:16,
 	},
 })
 

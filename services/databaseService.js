@@ -19,6 +19,26 @@ const databaseService ={
 			console.error('Error create documents:', error.message)
 			return {error: error.message}
 		}
+	},
+	///Update Document
+	async updateDocument (dbId,colId,id,data) {
+		try {
+			return await database.updateDocument(dbId,colId,id,data)
+		}catch (error){
+			console.error('Error update documents:', error.message)
+			return {error: error.message}
+		}
+	},
+	async deleteDocument(dbId,colId,id){
+		try {
+			await database.deleteDocument(dbId,colId,id)
+			return{success:true}
+		}catch (error){
+			console.log('Error deleting document', error.message)
+			return {
+				error: error.message
+			}
+		}
 	}
 }
 
