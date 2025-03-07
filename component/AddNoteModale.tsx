@@ -10,7 +10,7 @@ const AddNote = ({
 
                  }:any) => {
 	return (
-		 <Modal visible={modalVisibil}f
+		 <Modal visible={modalVisibil}
 		        animationType="slide"
 		        transparent
 		        onRequestClose={() => setModelVisibil(false)}

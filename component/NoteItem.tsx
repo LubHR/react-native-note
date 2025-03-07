@@ -3,7 +3,7 @@ import React from 'react';
 
 const NoteItem = ({note}:any) => {
 	return (<View style={style.noteItem}>
-		<Text style={style.noteText}>{note.title}</Text>
+		<Text style={style.noteText}>{note.text}</Text>
 	</View>)
 }
 
