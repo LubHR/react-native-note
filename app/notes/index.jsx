@@ -14,9 +14,14 @@ import NoteList from '@/component/NoteList';
 import AddNote from '@/component/AddNoteModale';
 import noteService from '@/services/noteService';
 import {database} from "../../services/appwite";
+import {useRouter} from "expo-router";
+import {useAuth} from "../../context/AuthContext";
 
 
 const NoteScreen = () => {
+	const router = useRouter()
+	const{user , loading:authLoading}= useAuth()
+
 	const [notes, setNotes] = useState([])
 
 	const [modalVisibil, setModelVisibil] = useState(false)
@@ -25,12 +30,20 @@ const NoteScreen = () => {
 	const [error, setError] = useState(null)
 
 	useEffect(() => {
-		fetchNotes();
-	}, []);
+			if (!authLoading && !user){
+				router.replace('/auth')
+			}
+	}, [user,authLoading]);
+
+	useEffect(() => {
+		if(user){
+			fetchNotes();
+		}
+	}, [user]);
 
 	const fetchNotes = async () =>{
 		setLoading(true)
-		const response = await noteService.getNotes()
+		const response = await noteService.getNotes(user.$id)
 
 		if(response.error){
 			setError(response.error);
@@ -45,7 +58,7 @@ const NoteScreen = () => {
 	const addNote = async () => {
 		if (newNote.trim() === '') return;
 
-		const response = await noteService.addNote(newNote)
+		const response = await noteService.addNote(user.$id,newNote)
 		if(response.error){
 			Alert.alert('Error', response.error);
 		}else {
@@ -64,8 +77,11 @@ const NoteScreen = () => {
 		if(response.error){
 			Alert.alert('Error', response.error)
 		}else{
-			setNotes((prevNote)=>prevNote.map((note) => note.$id === id ?
-				 {...notes,text:response.data.text} :note))
+			setNotes((prevNotes) =>
+				 prevNotes.map((note) =>
+						note.$id === id ? { ...note, text: response.data.text } : note
+				 )
+			);
 		}
 	}
 
@@ -98,7 +114,9 @@ const NoteScreen = () => {
 					<ActivityIndicator size={'large'} color={'blue'}/>
 			 ):(<>
 				  {error && <Text style={style.errorText}>{error}</Text>}
-				  <NoteList notes={notes} onDelete={deleteNote} onEdit={editNote}/>
+				 {notes.length === 0 ? (
+						<Text style={style.noNotes}>You have no notes</Text>
+				 ) : (<NoteList notes={notes} onDelete={deleteNote} onEdit={editNote}/>)}
 			 </>)
 			 }
 			 <TouchableOpacity style={style.addButton} onPress={() => setModelVisibil(true)}>
@@ -143,6 +161,13 @@ const style = StyleSheet.create({
 		marginBottom:10,
 		fontSize:16,
 	},
+	noNotes:{
+		textAlign:"center",
+		fontSize:18,
+		fontWeight:'bold',
+		color:'#555',
+		marginTop:15,
+	}
 })
 
 export default NoteScreen;

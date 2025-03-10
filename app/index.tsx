@@ -1,11 +1,26 @@
-import { Text, View,StyleSheet, Image,TouchableOpacity } from "react-native";
+import {Text, View, StyleSheet, Image, TouchableOpacity, ActivityIndicator} from 'react-native';
 // @ts-ignore
 import PostImage from "../assets/images/post-it.png"
 import {useRouter} from 'expo-router'
+import {useAuth} from '@/context/AuthContext';
+import {useEffect} from 'react';
 
  const HomePage =() => {
-
+  const {user,loading} = useAuth()
   const router = useRouter()
+
+   useEffect(() => {
+     if(!loading && user){
+        router.replace('/notes')
+     }
+   }, [user,loading]);
+  if(loading){
+    return (
+       <View style={style.conteredContainer}>
+         <ActivityIndicator size='large' color='#009900'/>
+       </View>
+    )
+  }
 
   return (
     <View style={style.page}>
@@ -56,6 +71,11 @@ const style = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 18,
+  },
+  conteredContainer:{
+    alignItems:'center',
+    justifyContent:'center',
+    textAlign:'center'
   }
 })
 

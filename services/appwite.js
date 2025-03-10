@@ -1,4 +1,4 @@
-import {Client, Databases} from 'react-native-appwrite';
+import {Account, Client, Databases} from 'react-native-appwrite';
 import {Platform} from "react-native";
 console.log("DB ID:", process.env.EXPO_PUBLIC_APPWRITE_DB_ID);
 console.log("Collection ID:", process.env.EXPO_PUBLIC_APPWRITE_COL_NOTES_ID);
@@ -27,5 +27,7 @@ switch (Platform.OS) {
 
 const database = new Databases(client)
 
-export {client,database ,config}
+const account = new Account(client)
+
+export {client,database ,config, account}
 
